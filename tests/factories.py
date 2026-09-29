@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 
 from memevision.contracts import LandmarkResult
+from memevision.features import FEATURE_NAMES
 
 # Índices de MediaPipe Pose
 NOSE, L_EYE, R_EYE, L_EAR, R_EAR = 0, 2, 5, 7, 8
@@ -111,3 +113,29 @@ def transformed(lm: LandmarkResult, fn) -> LandmarkResult:
         face=apply(lm.face),
         face_blendshapes=lm.face_blendshapes,
     )
+
+
+LABELS = ("michi-fuerza", "michi-silencio", "neutral")
+
+
+def synthetic(persons=("P01", "P02", "P03"), per_class=40, seed=0) -> pd.DataFrame:
+    """Cada clase es una nube de puntos alrededor de un centro distinto."""
+    rng = np.random.default_rng(seed)
+    rows = []
+    for person in persons:
+        offset = rng.normal(0, 0.1, len(FEATURE_NAMES))  # cada persona es un poco distinta
+        for k, label in enumerate(LABELS):
+            center = np.zeros(len(FEATURE_NAMES))
+            center[k * 5 : k * 5 + 5] = 3.0
+            X = center + offset + rng.normal(0, 0.3, (per_class, len(FEATURE_NAMES)))
+            for x in X:
+                rows.append(
+                    {
+                        "label": label,
+                        "person": person,
+                        "session": "s",
+                        "feature_version": "1.0",
+                        **dict(zip(FEATURE_NAMES, x, strict=True)),
+                    }
+                )
+    return pd.DataFrame(rows)
