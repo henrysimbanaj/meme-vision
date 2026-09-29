@@ -25,9 +25,9 @@ Cómo leer este documento:
 | `michi-ceja` | Gato naranja visto desde abajo, una ceja levantada, labios apretados | Levantar una sola ceja, apretar los labios, mirar hacia abajo a la cámara | Ceja asimétrica (`browOuterUp` izq ≠ der), `mouthPress`. Mucha gente no puede levantar una sola ceja | Alta | No |
 | `michi-cargando` | Gato negro con la cabeza ladeada y la mirada perdida (ruedita de carga) | Cabeza ladeada, mirada fija y en blanco, boca cerrada | Casi solo la inclinación de la cabeza: se confunde con `neutral` | Alta | No |
 | `michi-panas` | Dos gatitos dándose la mano 🤝 | Requiere dos personas (o darse la mano a uno mismo) | Manos juntas al frente. El sistema sigue a **una** persona (spec 002) | Alta | No |
-| `hamster-chill` | Hámster sonriendo con ✌️ (no es michi) | ✌️ con una mano junto a la cara, sonrisa grande | Mano junto a la cara con índice y medio extendidos, sonrisa | Media | No (no es michi) |
-| `conejo-tenemos` | Bugs Bunny "Tenemos": brazos abiertos al frente, palmas arriba, ojos entrecerrados (no es michi) | Brazos abiertos hacia los lados y adelante, palmas arriba, párpados a media asta, sonrisa | Muñecas lejos del torso y bajo los hombros, palmas arriba, `eyeBlink` medio | Media | No (no es michi) |
-| `perrito-que-no-se-repita` | Husky serio señalando con el índice: "que no se repita" (no es michi) | Índice arriba/al frente frente al pecho, cara seria, ceño fruncido | Solo índice extendido, `browDown`. Se confunde con `michi-de-hecho` | Alta | No (no es michi) |
+| `hamster-chill` | Hámster sonriendo con ✌️ (no es michi) | ✌️ con una mano junto a la cara, sonrisa grande | Mano junto a la cara con índice y medio extendidos, sonrisa | Media | Después |
+| `conejo-tenemos` | Bugs Bunny "Tenemos": brazos abiertos al frente, palmas arriba, ojos entrecerrados (no es michi) | Brazos abiertos hacia los lados y adelante, palmas arriba, párpados a media asta, sonrisa | Muñecas lejos del torso y bajo los hombros, palmas arriba, `eyeBlink` medio | Media | Después |
+| `perrito-que-no-se-repita` | Husky serio señalando con el índice: "que no se repita" (no es michi) | Índice arriba/al frente frente al pecho, cara seria, ceño fruncido | Solo índice extendido, `browDown`. Se confunde con `michi-de-hecho` | Alta | No |
 
 ## Selección inicial (5 + `neutral`)
 
@@ -45,6 +45,14 @@ Candidatos para ampliar después, por orden: `michi-tos` (solo cara, pero choca 
 `michi-de-hecho` (choca un poco con `michi-silencio`) y `michi-tirando-flow` (choca con `michi-silencio`).
 
 Si prefieren un meme más de brazos, `michi-tirando-flow` puede reemplazar a `michi-calajo`.
+
+## Encuadre y descripciones
+
+Las descripciones de este documento son un punto de partida: se ajustan cuando se prueben con la cámara real.
+- **Encuadre supuesto:** medio cuerpo (de la cabeza a la cintura), con los codos y las manos dentro del cuadro.
+  Si la cámara solo ve la cara, `michi-fuerza` y `michi-burla` dejan de funcionar.
+- **Cuándo se congelan:** justo antes de recolectar datos (spec 005). Cambiar la pose de un meme
+  después obliga a volver a grabarlo.
 
 ## Matriz de distinguibilidad
 
@@ -78,7 +86,7 @@ Si se eligen los 5 propuestos, al vector v1.0 le faltan:
 
 ## Decisiones pendientes (para Henry y la compañera)
 
-- [ ] ¿Se aceptan memes que no son de michis (conejo, hámster, perrito)? Por ahora quedan fuera.
+- [x] Se aceptan memes que no son de michis (Henry, 2026-09-29). `hamster-chill` y `conejo-tenemos` son candidatos para ampliar.
 - [ ] Corregir las frases y significados marcados con (¿?).
 - [x] Selección inicial: los 5 más fáciles de distinguir (Henry, 2026-09-29).
 - [ ] Pasar esos memes a `memes/catalog/<id>/` (spec 004).
