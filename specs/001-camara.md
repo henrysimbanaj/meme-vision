@@ -1,6 +1,6 @@
 # 001 — Cámara
 
-- **Estado:** aprobada
+- **Estado:** implementada
 - **Owner:** Henry
 - **Archivos:** `src/memevision/camera.py`, `tests/test_camera.py`
 
@@ -32,5 +32,6 @@ class Camera:
 Resolución configurable avanzada y múltiples cámaras.
 
 ## Tareas
-- [ ] Tests CAM-01..03, CAM-05 con imágenes y videos generados en `tmp_path`
-- [ ] CAM-04 con un `VideoCapture` falso (inyectable)
+- [x] Tests CAM-01..03, CAM-05 con imágenes y videos generados en `tmp_path`
+- [x] CAM-04 con un `VideoCapture` falso (inyectable: `capture_factory` y `clock`)
+- [x] Probado con la webcam real en Kubuntu (640x480) · [ ] probar en la Mac
