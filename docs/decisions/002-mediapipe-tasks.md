@@ -14,7 +14,11 @@ El Python del sistema en el Kubuntu de Henry es 3.14. Hacía falta saber si Medi
 
 ## Decisión
 - Python ≥ 3.11. CI prueba 3.12 y 3.14 en Ubuntu y macOS-14.
-- Usar la Tasks API. Queda por comparar en la spec 002: `HolisticLandmarker` (un solo modelo) frente a Pose + Hand + Face por separado.
+- Usar la Tasks API con **`HolisticLandmarker`** (decidido el 2026-09-29) en lugar de Pose + Hand + Face por separado:
+  - un solo modelo `.task` (13 MB) y una sola llamada por frame (~31 ms en Kubuntu, CPU);
+  - asigna cada mano al cuerpo, así que izquierda/derecha es la de la persona sin heurísticas propias;
+  - entrega los 52 blendshapes con `output_face_blendshapes=True`.
+  - Contra: sigue a una sola persona. Para la feria es lo que se quiere.
 
 ## Pendiente
 - [ ] En la Mac M2: `pip install -e ".[dev]"` + `bash scripts/check.sh`, y anotar aquí el resultado.

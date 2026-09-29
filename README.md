@@ -10,7 +10,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 pre-commit install
-python scripts/download_models.py     # modelos de MediaPipe (cuando exista)
+python scripts/download_models.py     # modelo de MediaPipe (13 MB, va a models/)
 bash scripts/check.sh                 # debe terminar en "OK"
 ```
 
