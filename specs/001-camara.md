@@ -1,6 +1,6 @@
 # 001 — Cámara
 
-- **Estado:** borrador
+- **Estado:** aprobada
 - **Owner:** Henry
 - **Archivos:** `src/memevision/camera.py`, `tests/test_camera.py`
 
