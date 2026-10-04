@@ -1,8 +1,8 @@
 import json
 
 import numpy as np
-import pandas as pd
 import pytest
+from factories import LABELS, synthetic
 
 from memevision.classifier import (
     MemeClassifier,
@@ -14,30 +14,6 @@ from memevision.contracts import Prediction
 from memevision.features import FEATURE_NAMES
 
 N = len(FEATURE_NAMES)
-LABELS = ("michi-fuerza", "michi-silencio", "neutral")
-
-
-def synthetic(persons=("P01", "P02", "P03"), per_class=40, seed=0) -> pd.DataFrame:
-    """Cada clase es una nube de puntos alrededor de un centro distinto."""
-    rng = np.random.default_rng(seed)
-    rows = []
-    for person in persons:
-        offset = rng.normal(0, 0.1, N)  # cada persona es un poco distinta
-        for k, label in enumerate(LABELS):
-            center = np.zeros(N)
-            center[k * 5 : k * 5 + 5] = 3.0
-            X = center + offset + rng.normal(0, 0.3, (per_class, N))
-            for x in X:
-                rows.append(
-                    {
-                        "label": label,
-                        "person": person,
-                        "session": "s",
-                        "feature_version": "1.0",
-                        **dict(zip(FEATURE_NAMES, x, strict=True)),
-                    }
-                )
-    return pd.DataFrame(rows)
 
 
 @pytest.fixture(scope="module")
