@@ -11,3 +11,6 @@ data/raw/
 *.mp4
 *.mov
 models/*.task
+
+# modelos entrenados (se regeneran con scripts/train.py)
+models/**/*.joblib
