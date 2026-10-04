@@ -1,6 +1,6 @@
 # Memes — análisis y selección
 
-Estado: **selección inicial hecha** (5 memes). Las frases marcadas con (¿?) aún están por confirmar.
+Estado: **selección inicial hecha** (5 memes, ya en `memes/catalog/`). Las frases marcadas con (¿?) aún están por confirmar.
 
 Cómo leer este documento:
 - Lo que dice **(¿?)** es una suposición sobre la frase o el significado del meme: corrígelo.
@@ -89,7 +89,7 @@ Si se eligen los 5 propuestos, al vector v1.0 le faltan:
 - [x] Se aceptan memes que no son de michis (Henry, 2026-09-29). `hamster-chill` y `conejo-tenemos` son candidatos para ampliar.
 - [ ] Corregir las frases y significados marcados con (¿?).
 - [x] Selección inicial: los 5 más fáciles de distinguir (Henry, 2026-09-29).
-- [ ] Pasar esos memes a `memes/catalog/<id>/` (spec 004).
+- [x] Pasar esos memes a `memes/catalog/<id>/` (spec 004).
 
 ## Clase `neutral`
 La persona está parada, con los brazos abajo y la cara relajada, sin imitar nada. Se entrena para que
