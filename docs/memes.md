@@ -1,9 +1,8 @@
 # Memes — análisis y selección
 
-Estado: **selección inicial hecha** (5 memes, ya en `memes/catalog/`). Las frases marcadas con (¿?) aún están por confirmar.
+Estado: **selección inicial hecha** (5 memes, ya en `memes/catalog/`). Las frases ya fueron corregidas (Compañera, 2026-10-03).
 
 Cómo leer este documento:
-- Lo que dice **(¿?)** es una suposición sobre la frase o el significado del meme: corrígelo.
 - Los emojis pegados en las imágenes (👊, ☝️, 🤫, 🤙…) se imitan con la **mano real**, que es lo que ve MediaPipe.
 - Los accesorios (sombrero, bigote, lentes, ruedita de carga) **no se detectan**: no cuentan como rasgo.
 - Dificultad = qué tan fácil es que el modelo lo separe de los demás y de `neutral` (no qué tan difícil es imitarlo).
@@ -16,17 +15,18 @@ Cómo leer este documento:
 | `michi-silencio` | Gato blanco, 🤫 dedo índice en los labios | Índice vertical sobre los labios, ojos bien abiertos, mirando a la cámara | Punta del índice ↔ boca muy cerca, solo índice extendido | Baja | Sí (inicial) |
 | `michi-67` | Gato blanco sonriendo de lado, un ojo entrecerrado, manos con palmas arriba ("6 7") | Las dos manos al frente a la altura del pecho, palmas arriba, sonrisa de lado y un ojo medio cerrado | Dos manos abiertas bajo los hombros y cerca del torso, sonrisa, parpadeo asimétrico | Media | Sí (inicial) |
 | `michi-burla` | Gato blanco con la boca muy abierta y una mano señalando | Señalar a la cámara con el índice y reírse con la boca muy abierta | `jawOpen` alto + un brazo extendido al frente con el índice | Media | Sí (inicial) |
-| `michi-calajo` | Gato naranja, ojos cerrados, sonrisa tranquila (sombrero y bigote pegados). Texto: "calajo" (¿?) | Ojos cerrados, sonrisa satisfecha, barbilla un poco arriba, brazos abajo | `eyeBlink` izq/der altos + sonrisa, sin manos en la cara | Media | Sí (inicial) |
+| `michi-side-eye` | Gato naranja, un ojo cerca a la cámara, está viendo de reojo a la cámara | Cara de perfil izquierdo o derecho, ojos abiertos, barbilla un poco abajo, brazos abajo | Rotación de cabeza en el eje Y (Yaw) moderada + Blendshapes: eyeLookIn y eyeLookOut altos + eyeSquint (ojos entrecerrados) | Alta | Sí (inicial) |
+|`michis-bailando-brasil` | Gatitos bailando y moviendo los brazos de lado a lado rápidamente al ritmo de funk brasileño | Mover la cabeza y hombros de izquierda a derecha repetidamente junto a los brazos | Cambios continuos y alternos en el eje X de la nariz (NOSE) o rotación Z de la cabeza (Roll) a lo largo de varios frames.| Alta (Requiere guardar un historial de las posiciones en los últimos N frames para detectar el patrón de movimiento/oscilación) | Después |
 | `michi-tos` | Gato blanco tosiendo: boca en "O", lengua afuera, cabeza ladeada | Boca abierta redonda, cabeza inclinada hacia un lado, ojos bien abiertos, manos abajo | `jawOpen` + `mouthFunnel`, inclinación de la cabeza, sin brazos | Media | Después |
 | `michi-de-hecho` | Gato con lentes, dientes afuera y ☝️ ("de hecho…" 🤓) | Índice arriba al lado de la cara, mostrar los dientes de arriba mordiendo el labio | Mano a la altura de la cabeza, solo índice extendido, boca | Media | Después |
 | `michi-tirando-flow` | Gatito bailando parado, las dos patas juntas frente a la boca, explosión detrás | Las dos manos (puños) juntas frente a la boca/nariz, un poco agachado, "bailando" | Las dos muñecas cerca de la cara y juntas | Media | Después |
 | `michi-golpe` | Gato naranja lanzando un puñetazo (👊) hacia la cámara | Un puño extendido hacia la cámara | Brazo extendido al frente y puño cerrado. La profundidad (z) es poco fiable en 2D | Alta | No |
-| `michi-saca-plan` | Gato gris sorprendido con la lengua afuera y 🤙 en el pecho. Frase: (¿?) | Mano 🤙 (pulgar y meñique) frente al pecho, boca abierta, ojos muy abiertos | Forma de la mano 🤙, `jawOpen`, `eyeWide`. La lengua no es un blendshape de MediaPipe | Alta | No |
+| `michi-saca-plan` | Gato gris sorprendido con la lengua afuera y 🤙 en el pecho. | Mano 🤙 (pulgar y meñique) frente al pecho, boca abierta, ojos muy abiertos | Forma de la mano 🤙, `jawOpen`, `eyeWide`. La lengua no es un blendshape de MediaPipe | Media | Después |
 | `michi-ceja` | Gato naranja visto desde abajo, una ceja levantada, labios apretados | Levantar una sola ceja, apretar los labios, mirar hacia abajo a la cámara | Ceja asimétrica (`browOuterUp` izq ≠ der), `mouthPress`. Mucha gente no puede levantar una sola ceja | Alta | No |
 | `michi-cargando` | Gato negro con la cabeza ladeada y la mirada perdida (ruedita de carga) | Cabeza ladeada, mirada fija y en blanco, boca cerrada | Casi solo la inclinación de la cabeza: se confunde con `neutral` | Alta | No |
 | `michi-panas` | Dos gatitos dándose la mano 🤝 | Requiere dos personas (o darse la mano a uno mismo) | Manos juntas al frente. El sistema sigue a **una** persona (spec 002) | Alta | No |
 | `hamster-chill` | Hámster sonriendo con ✌️ (no es michi) | ✌️ con una mano junto a la cara, sonrisa grande | Mano junto a la cara con índice y medio extendidos, sonrisa | Media | Después |
-| `conejo-tenemos` | Bugs Bunny "Tenemos": brazos abiertos al frente, palmas arriba, ojos entrecerrados (no es michi) | Brazos abiertos hacia los lados y adelante, palmas arriba, párpados a media asta, sonrisa | Muñecas lejos del torso y bajo los hombros, palmas arriba, `eyeBlink` medio | Media | Después |
+| `conejo-tenemos` | Bugs Bunny "Tenemos": brazos abiertos al frente, palmas arriba, ojos entrecerrados (no es michi) | Brazos abiertos hacia los lados y adelante, palmas arriba, párpados a media asta, sonrisa | Muñecas lejos del torso y bajo los hombros, palmas arriba, `eyeBlink` medio | Media | No |
 | `perrito-que-no-se-repita` | Husky serio señalando con el índice: "que no se repita" (no es michi) | Índice arriba/al frente frente al pecho, cara seria, ceño fruncido | Solo índice extendido, `browDown`. Se confunde con `michi-de-hecho` | Alta | No |
 
 ## Selección inicial (5 + `neutral`)
@@ -39,12 +39,10 @@ Criterio: que cada meme se reconozca por **un rasgo fuerte distinto** y que haya
 | `michi-silencio` | Una mano en la boca con el índice |
 | `michi-67` | Las dos manos al frente con las palmas arriba, pegadas al torso |
 | `michi-burla` | Brazo extendido señalando + boca muy abierta |
-| `michi-calajo` | Solo la cara: ojos cerrados + sonrisa, manos abajo |
+| `michi-side-eye` | Cara de perfil izquierdo o derecho, ojos abiertos, barbilla un poco abajo, brazos abajo |
 
 Candidatos para ampliar después, por orden: `michi-tos` (solo cara, pero choca con la boca abierta de `michi-burla`),
 `michi-de-hecho` (choca un poco con `michi-silencio`) y `michi-tirando-flow` (choca con `michi-silencio`).
-
-Si prefieren un meme más de brazos, `michi-tirando-flow` puede reemplazar a `michi-calajo`.
 
 ## Encuadre y descripciones
 
@@ -64,7 +62,7 @@ Las descripciones de este documento son un punto de partida: se ajustan cuando s
 | michi-silencio | | ✔ | | | | ✔ | | | | | |
 | michi-67 | | | | ~ | ✔ | | | ~ | ✔ | | ~ |
 | michi-burla | | | | ✔ | | ✔ | ✔ | | | | |
-| michi-calajo | | | | | | | | ✔ | ✔ | | |
+| michi-side-eye | | | | | | | | ~  | | ~ | |
 | michi-tos | | | | | | | ✔ | | | ✔ | |
 | michi-de-hecho | | ~ | | | | ✔ | | | | | |
 | michi-tirando-flow | | | ✔ | | | | | | | | |
@@ -87,7 +85,7 @@ Si se eligen los 5 propuestos, al vector v1.0 le faltan:
 ## Decisiones pendientes (para Henry y la compañera)
 
 - [x] Se aceptan memes que no son de michis (Henry, 2026-09-29). `hamster-chill` y `conejo-tenemos` son candidatos para ampliar.
-- [ ] Corregir las frases y significados marcados con (¿?).
+- [x] Corregir las frases y significados marcados con (¿?) (Compañera, 2026-10-03).
 - [x] Selección inicial: los 5 más fáciles de distinguir (Henry, 2026-09-29).
 - [x] Pasar esos memes a `memes/catalog/<id>/` (spec 004).
 
