@@ -1,0 +1,26 @@
+{
+  "feature_version": "1.0",
+  "classes": [
+    "michi-67",
+    "michi-burla",
+    "michi-fuerza",
+    "michi-side-eye",
+    "michi-silencio",
+    "neutral"
+  ],
+  "persons_train": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P06"
+  ],
+  "persons_test": [
+    "P06"
+  ],
+  "samples_train": 8996,
+  "samples_test": 1799,
+  "accuracy_unseen_person": 0.6781545302946081,
+  "n_estimators": 300,
+  "created": "2026-10-05T16:43:12"
+}
