@@ -8,6 +8,7 @@
 Convertir un frame en coordenadas del cuerpo, las manos y la cara, más los blendshapes faciales,
 usando la **MediaPipe Tasks API**. Se usa `HolisticLandmarker` (un solo modelo, ver ADR-002):
 asigna cada mano al cuerpo de la persona y entrega los 52 blendshapes con `output_face_blendshapes=True`.
+El `BaseOptions.delegate` es siempre `CPU`: en macOS el arranque sin delegado abre Metal y aborta.
 
 ## Contrato
 ```python

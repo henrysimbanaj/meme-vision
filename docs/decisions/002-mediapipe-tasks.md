@@ -20,5 +20,12 @@ El Python del sistema en el Kubuntu de Henry es 3.14. Hacía falta saber si Medi
   - entrega los 52 blendshapes con `output_face_blendshapes=True`.
   - Contra: sigue a una sola persona. Para la feria es lo que se quiere.
 
+## Mac (2026-10-04)
+`mediapipe 1.0.1` en Apple Silicon aborta al abrir `HolisticLandmarker` con delegado CPU:
+`DrishtiMetalHelper` pide el servicio GPU y hace `Check failed: service_`. Con delegado GPU
+el grafo de blendshapes falla en Metal (`TFLGpuDelegateBindMetalBufferToTensor`).
+`mediapipe 0.10.35` crea el mismo landmarker en CPU. El proyecto queda fijado en esa versión.
+El delegado en el código sigue siendo `BaseOptions.Delegate.CPU`.
+
 ## Pendiente
 - [ ] En la Mac M2: `pip install -e ".[dev]"` + `bash scripts/check.sh`, y anotar aquí el resultado.

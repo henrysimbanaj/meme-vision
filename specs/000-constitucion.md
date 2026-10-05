@@ -1,6 +1,6 @@
 # 000 — Constitución del proyecto
 
-- **Estado:** aprobada por Henry · pendiente de la compañera
+- **Estado:** aprobada por Henry · aprobada por la compañera
 - **Owner:** Ambos
 
 Estos principios valen por encima de cualquier spec. Si una spec los contradice, gana la constitución.

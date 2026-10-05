@@ -1,7 +1,7 @@
 # 001 — Cámara
 
 - **Estado:** implementada
-- **Owner:** Henry
+- **Owner:** Henry y Compañera
 - **Archivos:** `src/memevision/camera.py`, `tests/test_camera.py`
 
 ## Propósito
