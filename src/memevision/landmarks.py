@@ -86,8 +86,13 @@ class LandmarkDetector:
         import mediapipe as mp  # import tardío: los tests rápidos no cargan MediaPipe
         from mediapipe.tasks.python import BaseOptions, vision
 
+        # En macOS el arranque por defecto abre Metal (DrishtiMetalHelper) y aborta
+        # si el servicio GPU no está. CPU es el único delegado usable en la feria.
         options = vision.HolisticLandmarkerOptions(
-            base_options=BaseOptions(model_asset_path=str(model_path)),
+            base_options=BaseOptions(
+                model_asset_path=str(model_path),
+                delegate=BaseOptions.Delegate.CPU,
+            ),
             running_mode=vision.RunningMode.VIDEO,
             output_face_blendshapes=True,
         )

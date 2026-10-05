@@ -103,6 +103,22 @@ def test_LMK_03_con_espejo_el_detector_ve_la_vista_real_y_x_se_invierte():
     assert result.pose[0, 1] == pytest.approx(0.0)  # y no cambia
 
 
+def test_LMK_07_el_modelo_se_inicializa_solo_en_cpu(tmp_path, monkeypatch):
+    (tmp_path / "holistic_landmarker.task").write_bytes(b"x")
+    from mediapipe.tasks.python import BaseOptions, vision
+
+    captured: dict = {}
+
+    def fake_create(options):
+        captured["delegate"] = options.base_options.delegate
+        return type("Landmarker", (), {"close": lambda self: None})()
+
+    monkeypatch.setattr(vision.HolisticLandmarker, "create_from_options", fake_create)
+    LandmarkDetector(models_dir=tmp_path)
+    assert captured["delegate"] is BaseOptions.Delegate.CPU
+    assert captured["delegate"] is not BaseOptions.Delegate.GPU
+
+
 def test_LMK_04_sin_modelo_error_con_instrucciones(tmp_path):
     with pytest.raises(FileNotFoundError, match="download_models.py"):
         LandmarkDetector(models_dir=tmp_path)

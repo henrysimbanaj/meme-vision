@@ -10,7 +10,8 @@ requires-python = ">=3.11"
 dependencies = [
     "numpy>=1.26",
     "opencv-contrib-python>=4.9",  # la trae mediapipe; no instalar opencv-python a la vez
-    "mediapipe>=1.0.1",
+    # 1.0.1 en macOS aborta en DrishtiMetalHelper aunque el delegado sea CPU.
+    "mediapipe==0.10.35",
     "pandas>=2.1",
     "scikit-learn>=1.4",
     "joblib>=1.3",
