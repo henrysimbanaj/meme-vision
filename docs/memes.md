@@ -16,7 +16,6 @@ Cómo leer este documento:
 | `michi-silencio` | Gato blanco, 🤫 dedo índice en los labios | Índice vertical sobre los labios, ojos bien abiertos, mirando a la cámara | Punta del índice ↔ boca muy cerca, solo índice extendido | Baja | Sí (inicial) |
 | `michi-67` | Gato blanco sonriendo de lado, un ojo entrecerrado, manos con palmas arriba ("6 7") | Las dos manos al frente a la altura del pecho, palmas arriba, sonrisa de lado y un ojo medio cerrado | Dos manos abiertas bajo los hombros y cerca del torso, sonrisa, parpadeo asimétrico | Media | Sí (inicial) |
 | `michi-burla` | Gato blanco con la boca muy abierta y una mano señalando | Señalar a la cámara con el índice y reírse con la boca muy abierta | `jawOpen` alto + un brazo extendido al frente con el índice | Media | Sí (inicial) |
-| `michi-tos` | Gato blanco tosiendo: boca en "O", lengua afuera, cabeza ladeada | Boca abierta redonda, cabeza inclinada hacia un lado, ojos bien abiertos, manos abajo | `jawOpen` + `mouthFunnel`, inclinación de la cabeza, sin brazos | Media | Después |
 | `michi-de-hecho` | Gato con lentes, dientes afuera y ☝️ ("de hecho…" 🤓) | Índice arriba al lado de la cara, mostrar los dientes de arriba mordiendo el labio | Mano a la altura de la cabeza, solo índice extendido, boca | Media | Después |
 | `michi-tirando-flow` | Gatito bailando parado, las dos patas juntas frente a la boca, explosión detrás | Las dos manos (puños) juntas frente a la boca/nariz, un poco agachado, "bailando" | Las dos muñecas cerca de la cara y juntas | Media | Después |
 | `michi-golpe` | Gato naranja lanzando un puñetazo (👊) hacia la cámara | Un puño extendido hacia la cámara | Brazo extendido al frente y puño cerrado. La profundidad (z) es poco fiable en 2D | Alta | No |
@@ -34,8 +33,7 @@ Criterio: que cada meme se reconozca por **un rasgo fuerte distinto** y que haya
 | `michi-67` | Las dos manos al frente con las palmas arriba, pegadas al torso |
 | `michi-burla` | Brazo extendido señalando + boca muy abierta |
 
-Candidatos para ampliar después, por orden: `michi-tos` (solo cara, pero choca con la boca abierta de `michi-burla`),
-`michi-de-hecho` (choca un poco con `michi-silencio`) y `michi-tirando-flow` (choca con `michi-silencio`).
+Candidatos para ampliar después, por orden: `michi-de-hecho` (choca un poco con `michi-silencio`) y `michi-tirando-flow` (choca con `michi-silencio`).
 
 ## Encuadre y descripciones
 
@@ -55,7 +53,6 @@ Las descripciones de este documento son un punto de partida: se ajustan cuando s
 | michi-silencio | | ✔ | | | | ✔ | | | | | |
 | michi-67 | | | | ~ | ✔ | | | ~ | ✔ | | ~ |
 | michi-burla | | | | ✔ | | ✔ | ✔ | | | | |
-| michi-tos | | | | | | | ✔ | | | ✔ | |
 | michi-de-hecho | | ~ | | | | ✔ | | | | | |
 | michi-tirando-flow | | | ✔ | | | | | | | | |
 | michi-golpe | | | | ✔ | | | | | | | |
@@ -67,7 +64,6 @@ Si se eligen los 4 propuestos, al vector v1.0 le faltan:
 - **Forma de la mano por dedo**, no solo la apertura: saber si solo el índice está extendido (`michi-silencio`, `michi-burla`).
 - **Distancia de la punta del índice a la boca**, además de muñeca↔boca.
 - **Orientación de la palma** (arriba o abajo) para `michi-67`.
-- Si entra `michi-tos`: el blendshape `mouthFunnel`.
 
 ## Decisiones pendientes (para Henry y la compañera)
 

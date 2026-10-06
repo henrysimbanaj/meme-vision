@@ -48,7 +48,7 @@ def points_for(prediction: Prediction, target: str | None) -> int:
 class Timings:
     detect_s: float = 1.0
     countdown_s: float = 3.0
-    analyze_max_s: float = 4.0
+    analyze_max_s: float = 3.0
     result_s: float = 5.0
     lost_s: float = 1.5
 
@@ -184,9 +184,7 @@ class Game:
         elif phase == Phase.ANALYZING:
             if prediction is not None:
                 self._last_prediction = prediction
-            if stable and prediction is not None and prediction.meme != UNSURE:
-                self._finish(prediction)
-            elif elapsed >= t.analyze_max_s - _EPS:
+            if elapsed >= t.analyze_max_s - _EPS:
                 self._finish(self._last_prediction or Prediction(UNSURE, 0.0))
         elif phase == Phase.RESULT and elapsed >= t.result_s - _EPS:
             if self.mode == Mode.CHALLENGE and self._round >= self.rounds:

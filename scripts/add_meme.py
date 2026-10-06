@@ -1,8 +1,8 @@
 """Pasa un meme del inbox al catálogo (spec 004).
 
 Uso:
-    python scripts/add_meme.py memes/inbox/michi-tos.jpg --name "Michi Tos" \
-        --caption "cof cof" --trait "Boca abierta en O" --trait "Cabeza ladeada"
+    python scripts/add_meme.py memes/inbox/michi-de-hecho.jpg --name "Michi De Hecho" \
+        --caption "de hecho…" --trait "Índice arriba" --trait "Dientes de arriba"
 """
 
 from __future__ import annotations

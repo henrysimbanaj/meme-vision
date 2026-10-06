@@ -31,7 +31,7 @@ python scripts/train.py
 python scripts/evaluate.py                         # reports/confusion_matrix.png
 
 # Agregar un meme nuevo desde memes/inbox/
-python scripts/add_meme.py memes/inbox/michi-tos.jpg --name "Michi Tos" --trait "Boca en O"
+python scripts/add_meme.py memes/inbox/michi-de-hecho.jpg --name "Michi De Hecho" --trait "Índice arriba"
 ```
 
 En la demo: `m` cambia de modo (reto, libre, en vivo), `espacio` inicia una nueva ronda,

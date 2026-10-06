@@ -10,7 +10,6 @@
     "michi-side-eye",
     "michi-silencio",
     "michi-tirando-flow",
-    "michi-tos",
     "neutral"
   ],
   "persons_train": [
@@ -23,9 +22,9 @@
   "persons_test": [
     "P06"
   ],
-  "samples_train": 11980,
+  "samples_train": 11384,
   "samples_test": 1799,
-  "accuracy_unseen_person": 0.566425792106726,
+  "accuracy_unseen_person": 0.6264591439688716,
   "n_estimators": 300,
-  "created": "2026-10-06T13:51:20"
+  "created": "2026-10-06T14:15:40"
 }

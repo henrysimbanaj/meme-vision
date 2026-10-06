@@ -57,26 +57,19 @@ def test_UX_03_cuenta_de_3_segundos():
     assert advance(game, clock, 0.3).phase == Phase.ANALYZING
 
 
-def test_UX_04_prediccion_estable_da_resultado():
+def test_UX_04_analiza_3_s_aunque_la_prediccion_sea_estable():
     game, clock = make()
     to_analyzing(game, clock)
-    state = advance(game, clock, 0.2, pred=p("michi-67"), stable=True)
-    assert state.phase == Phase.RESULT and state.result.meme == "michi-67"
-
-
-def test_UX_04_sin_estabilidad_usa_la_ultima_tras_4_s():
-    game, clock = make()
-    to_analyzing(game, clock)
-    state = advance(game, clock, 3.8, pred=p("michi-67", 0.5))
+    state = advance(game, clock, 2.8, pred=p("michi-67"), stable=True)
     assert state.phase == Phase.ANALYZING
-    state = advance(game, clock, 0.3, pred=p("michi-67", 0.5))
+    state = advance(game, clock, 0.3, pred=p("michi-67"), stable=True)
     assert state.phase == Phase.RESULT and state.result.meme == "michi-67"
 
 
 def test_UX_04_sin_ninguna_prediccion_es_no_seguro():
     game, clock = make()
     to_analyzing(game, clock)
-    state = advance(game, clock, 4.1)
+    state = advance(game, clock, 3.1)
     assert state.phase == Phase.RESULT and state.result.meme == UNSURE
 
 
@@ -84,26 +77,26 @@ def test_UX_05_exito_solo_si_coincide_con_el_objetivo():
     game, clock = make()
     target = to_analyzing(game, clock).target
     assert target in MEMES
-    state = advance(game, clock, 0.1, pred=p(target), stable=True)
+    state = advance(game, clock, 3.0, pred=p(target), stable=True)
     assert state.success is True
 
     game, clock = make()
     target = to_analyzing(game, clock).target
     other = next(m for m in MEMES if m != target)
-    assert advance(game, clock, 0.1, pred=p(other), stable=True).success is False
+    assert advance(game, clock, 3.0, pred=p(other), stable=True).success is False
 
 
 def test_UX_05_modo_libre_sin_exito():
     game, clock = make(mode=Mode.FREE)
     state = to_analyzing(game, clock)
     assert state.target is None
-    assert advance(game, clock, 0.1, pred=p("michi-67"), stable=True).success is None
+    assert advance(game, clock, 3.0, pred=p("michi-67"), stable=True).success is None
 
 
 def test_UX_06_resultado_dura_5_s_y_cambia_el_objetivo():
     game, clock = make()
     first = to_analyzing(game, clock).target
-    advance(game, clock, 0.1, pred=p(first), stable=True)
+    advance(game, clock, 3.0, pred=p(first), stable=True)
     assert advance(game, clock, 4.8).phase == Phase.RESULT
     state = advance(game, clock, 0.3, visible=False)
     assert state.phase == Phase.SEARCHING
@@ -139,7 +132,7 @@ def test_UX_11_puntos_segun_el_parecido_al_meme_de_la_pantalla():
     state = advance(
         game,
         clock,
-        0.1,
+        3.0,
         pred=Prediction("otro", 0.6, {target: 0.87, "otro": 0.13}),
         stable=True,
     )
@@ -150,7 +143,7 @@ def test_UX_11_puntos_segun_el_parecido_al_meme_de_la_pantalla():
     state = advance(
         game,
         clock,
-        0.1,
+        3.0,
         pred=Prediction("otro", 0.6, {target2: 0.4, "otro": 0.6}),
         stable=True,
     )
@@ -161,7 +154,7 @@ def test_UX_12_al_terminar_las_rondas_pasa_al_resumen():
     game, clock = make(rounds=2)
     for _ in range(2):
         target = to_analyzing(game, clock).target
-        advance(game, clock, 0.1, pred=p(target, 0.5), stable=True)
+        advance(game, clock, 3.0, pred=p(target, 0.5), stable=True)
         assert game.state.phase == Phase.RESULT
         advance(game, clock, 5.1, visible=False)
     assert game.state.phase == Phase.SUMMARY
@@ -172,7 +165,7 @@ def test_UX_12_al_terminar_las_rondas_pasa_al_resumen():
 def test_UX_13_volver_a_intentar_reinicia_puntaje_y_ronda():
     game, clock = make(rounds=1)
     target = to_analyzing(game, clock).target
-    advance(game, clock, 0.1, pred=p(target), stable=True)
+    advance(game, clock, 3.0, pred=p(target), stable=True)
     advance(game, clock, 5.1, visible=False)
     assert game.state.phase == Phase.SUMMARY
     state = game.play_again()
