@@ -5,7 +5,7 @@ from factories import full_person
 from memevision.catalog import load_catalog
 from memevision.contracts import NEUTRAL, UNSURE, Prediction
 from memevision.game import GameState, Mode, Phase
-from memevision.ui import HEIGHT, START_BUTTON, WIDTH, button_at, render, render_start
+from memevision.ui import HEIGHT, START_BUTTON, WIDTH, button_at, feedback_for, render, render_start
 
 CATALOG = load_catalog()
 MEME = next(iter(CATALOG))
@@ -39,6 +39,23 @@ def test_UX_10_render_da_lienzo_1280x720_en_todas_las_fases(state, with_frame):
     canvas = render(frame, state, CATALOG, lm, banner="Aviso" if state.mode == Mode.LIVE else "")
     assert canvas.shape == (HEIGHT, WIDTH, 3)
     assert canvas.dtype == np.uint8
+
+
+@pytest.mark.parametrize(
+    ("points", "expected"),
+    [
+        (100, "Excelente"),
+        (80, "Excelente"),
+        (79, "Buen Trabajo"),
+        (55, "Buen Trabajo"),
+        (54, "Casi"),
+        (30, "Casi"),
+        (29, "Suerte en la próxima!"),
+        (0, "Suerte en la próxima!"),
+    ],
+)
+def test_UX_16_mensaje_de_resultado_segun_puntos(points, expected):
+    assert feedback_for(points) == expected
 
 
 def test_UX_15_pantalla_de_inicio_es_1280x720_y_el_boton_jugar_responde():

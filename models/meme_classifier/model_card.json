@@ -3,9 +3,14 @@
   "classes": [
     "michi-67",
     "michi-burla",
+    "michi-de-hecho",
     "michi-fuerza",
+    "michi-golpe",
+    "michi-saca-plan",
     "michi-side-eye",
     "michi-silencio",
+    "michi-tirando-flow",
+    "michi-tos",
     "neutral"
   ],
   "persons_train": [
@@ -18,9 +23,9 @@
   "persons_test": [
     "P06"
   ],
-  "samples_train": 8996,
+  "samples_train": 11980,
   "samples_test": 1799,
-  "accuracy_unseen_person": 0.6781545302946081,
+  "accuracy_unseen_person": 0.566425792106726,
   "n_estimators": 300,
-  "created": "2026-10-05T20:45:52"
+  "created": "2026-10-06T13:51:20"
 }

@@ -23,7 +23,9 @@ BUSCANDO --persona visible--> DETECTADA --1 s--> CUENTA (3, 2, 1) --> ANALIZANDO
     +------------------------- 5 s ---------------------------------- RESULTADO
 ```
 - Si la persona desaparece más de 1.5 s en DETECTADA, CUENTA o ANALIZANDO → BUSCANDO.
-- En RESULTADO: el meme con su porcentaje. En modo reto, además, si superó el reto o no.
+- En RESULTADO, modo reto: un mensaje según los puntos de la ronda (0–100).
+  80 o más: «Excelente». 55–79: «Buen Trabajo». 30–54: «Casi». Menos de 30: «Suerte en la próxima!».
+  Debajo, los puntos de la ronda y el total.
 - Al terminar RESULTADO empieza una ronda nueva con otro meme objetivo (distinto al anterior),
   hasta completar **10 rondas**. Luego pasa a RESUMEN: puntaje total, leaderboard y
   el botón «Volver a intentar».
@@ -72,6 +74,7 @@ def button_at(x: int, y: int) -> str | None   # "start" o "retry"
 - `UX-13` `play_again` vuelve a la ronda 1 con puntaje 0.
 - `UX-14` Guardar un nombre y un puntaje los agrega al leaderboard, ordenado de mayor a menor. Un nombre vacío no se guarda.
 - `UX-15` `render_start` devuelve un lienzo 1280x720. El clic en «Jugar» lo identifica `button_at` como `start`; fuera del botón no hay acción.
+- `UX-16` El mensaje del resultado depende de los puntos: 80+ «Excelente», 55–79 «Buen Trabajo», 30–54 «Casi», menos de 30 «Suerte en la próxima!».
 
 ## Controles (teclado)
 `q`/`Esc` salir · `m` cambiar de modo · `espacio` nueva ronda · `f` pantalla completa.

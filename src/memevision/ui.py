@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from functools import cache
 
 import cv2
@@ -85,12 +86,12 @@ def render(
 
 
 def _header(canvas: np.ndarray, state: GameState) -> None:
-    put_text(canvas, "MEME VISION", (24, 18), 40, ACCENT, bold=True)
-    mode = f"Modo {MODE_NAMES[state.mode]}"
     if state.mode == Mode.CHALLENGE:
-        mode += f" · {state.round}/{state.total_rounds} · {state.score} pts"
-    elif state.mode != Mode.LIVE:
-        mode += f" · Ronda {state.round}"
+        mode = f"{state.round}/{state.total_rounds} · {state.score} pts"
+    elif state.mode == Mode.LIVE:
+        mode = f"Modo {MODE_NAMES[state.mode]}"
+    else:
+        mode = f"Modo {MODE_NAMES[state.mode]} · Ronda {state.round}"
     put_text(canvas, mode, (WIDTH - 24 - _width(mode, 26), 26), 26)
 
 
@@ -125,7 +126,7 @@ def _right_panel(canvas: np.ndarray, state: GameState, catalog: dict[str, MemeSp
     if state.phase == Phase.RESULT and state.result is not None:
         _meme_card(panel, catalog.get(state.result.meme), title=None, show_traits=False)
     elif state.mode == Mode.CHALLENGE:
-        _meme_card(panel, catalog.get(state.target or ""), title="Tu reto:", show_traits=True)
+        _meme_card(panel, catalog.get(state.target or ""), title=None, show_traits=False)
     elif state.mode == Mode.FREE:
         _meme_grid(panel, list(catalog.values()))
     else:
@@ -138,25 +139,20 @@ def _right_panel(canvas: np.ndarray, state: GameState, catalog: dict[str, MemeSp
 def _footer(canvas: np.ndarray, state: GameState, catalog: dict[str, MemeSpec]) -> None:
     y = FOOTER_Y + 40
     phase, mode = state.phase, state.mode
-    if phase == Phase.SEARCHING:
-        _big(canvas, "Colócate frente a la cámara", y)
-        _small(canvas, "que se vea de la cabeza a la cintura", y + 52)
-    elif phase == Phase.DETECTED:
+    if phase == Phase.DETECTED:
         _big(canvas, "¡Te veo! Prepárate…", y, YELLOW)
     elif phase == Phase.COUNTDOWN:
-        msg = "¡Imita el meme de la derecha!" if mode == Mode.CHALLENGE else "¡Imita un meme!"
+        msg = "¡Imita el meme!" if mode == Mode.CHALLENGE else "¡Imita un meme!"
         _big(canvas, msg, y, YELLOW)
     elif phase == Phase.ANALYZING:
-        _big(canvas, "¡Quédate así!", y - 10)
+        _big(canvas, "Calificando...", y - 10)
         _bars(canvas, state.live, catalog, y + 30)
     elif phase == Phase.RESULT and state.result is not None:
         _result(canvas, state, catalog, y)
     elif phase == Phase.LIVE:
         if state.live is None and state.person_visible:
             _big(canvas, "¡Te veo!", y, YELLOW)
-        elif state.live is None:
-            _big(canvas, "Colócate frente a la cámara", y)
-        else:
+        elif state.live is not None:
             _bars(canvas, state.live, catalog, y - 20, rows=3)
     put_text(canvas, CONTROLS, (WIDTH - 12 - _width(CONTROLS, 16), HEIGHT - 26), 16, (170,) * 3)
 
@@ -167,7 +163,6 @@ def _summary(
     draft_name: str,
     leaderboard: list[tuple[str, int]],
 ) -> None:
-    put_text(canvas, "MEME VISION", (24, 18), 40, ACCENT, bold=True)
     _big(canvas, f"Tu puntaje: {state.score}", 110, WHITE)
     _small(canvas, "¿Quieres guardar tu nombre y puntaje?", 170, (210, 210, 210), 28)
     shown = draft_name if draft_name else "escribe tu nombre y pulsa Enter"
@@ -190,22 +185,35 @@ def _summary(
     )
 
 
+def feedback_for(points: int) -> str:
+    """Mensaje del resultado según los puntos de la ronda, de 0 a 100."""
+    if points >= 80:
+        return "Excelente"
+    if points >= 55:
+        return "Buen Trabajo"
+    if points >= 30:
+        return "Casi"
+    return "Suerte en la próxima!"
+
+
 def _result(canvas: np.ndarray, state: GameState, catalog: dict[str, MemeSpec], y: int) -> None:
     result = state.result
-    if result.meme == UNSURE:
-        _big(canvas, "No estoy seguro… ¡inténtalo otra vez!", y, YELLOW)
+    if state.mode == Mode.CHALLENGE:
+        _big(canvas, feedback_for(state.round_points), y, WHITE)
     elif result.meme == NEUTRAL:
         _big(canvas, "No estás imitando ningún meme", y, YELLOW)
-    else:
-        name = _name(result.meme, catalog)
-        _big(canvas, f"¡Estás imitando a {name}!  {result.confidence:.0%}", y, WHITE)
+    elif result.meme != UNSURE:
+        _big(canvas, feedback_for(int(round(result.confidence * 100))), y, WHITE)
     if state.mode == Mode.CHALLENGE:
-        _small(
+        score_y = y + 58
+        put_text(
             canvas,
             f"+{state.round_points} pts por este meme · Total {state.score}",
-            y + 48,
-            ACCENT,
-            28,
+            (WIDTH // 2, score_y),
+            52,
+            YELLOW,
+            bold=True,
+            center=True,
         )
     elif state.success is True:
         _small(canvas, "¡Reto superado!", y + 56, GREEN, size=34)
@@ -257,10 +265,15 @@ def _bars(
 ) -> None:
     if prediction is None:
         return
+    rows_data = [(_name(meme, catalog), prob) for meme, prob in prediction.top(rows)]
+    _draw_bars(canvas, y, rows_data)
+
+
+def _draw_bars(canvas: np.ndarray, y: int, rows: Sequence[tuple[str, float]]) -> None:
     x0, bar_w, row_h = 260, 700, 38
-    for i, (meme, prob) in enumerate(prediction.top(rows)):
+    for i, (label, prob) in enumerate(rows):
         yy = y + i * row_h
-        put_text(canvas, _name(meme, catalog), (x0 - 16 - _width(_name(meme, catalog), 24), yy), 24)
+        put_text(canvas, label, (x0 - 16 - _width(label, 24), yy), 24)
         cv2.rectangle(canvas, (x0, yy + 4), (x0 + bar_w, yy + 28), PANEL_BG, -1)
         color = ACCENT if i == 0 else (150, 110, 150)
         cv2.rectangle(canvas, (x0, yy + 4), (x0 + int(bar_w * prob), yy + 28), color, -1)
