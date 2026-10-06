@@ -31,6 +31,31 @@ ACCENT = (200, 120, 255)  # rosa
 
 MODE_NAMES = {Mode.CHALLENGE: "Reto", Mode.FREE: "Libre", Mode.LIVE: "En vivo"}
 CONTROLS = "m: modo · espacio: nueva ronda · f: pantalla completa · q: salir"
+# Lienzo 1280x720. La demo traduce el clic de la ventana a estas coordenadas.
+START_BUTTON = (440, 390, 400, 70)
+RETRY_BUTTON = (440, 628, 400, 58)
+GAME_TITLE = "Live WebCat"
+
+
+def button_at(x: int, y: int) -> str | None:
+    """Devuelve 'start' en «Jugar» o 'retry' en «Volver a intentar»."""
+    for name, rect in (("start", START_BUTTON), ("retry", RETRY_BUTTON)):
+        x0, y0, w, h = rect
+        if x0 <= x < x0 + w and y0 <= y < y0 + h:
+            return name
+    return None
+
+
+def render_start() -> np.ndarray:
+    """Pantalla de inicio, sin cámara: solo el nombre del juego y «Jugar»."""
+    canvas = np.full((HEIGHT, WIDTH, 3), BG, dtype=np.uint8)
+    put_text(canvas, GAME_TITLE, (HALF, 250), 84, ACCENT, bold=True, center=True)
+    x0, y0, w, h = START_BUTTON
+    cv2.rectangle(canvas, (x0, y0), (x0 + w, y0 + h), ACCENT, -1)
+    put_text(canvas, "Jugar", (x0 + w // 2, y0 + h // 2), 36, BG, bold=True, center=True)
+    hint = "Enter o espacio para jugar · f: pantalla completa · q: salir"
+    put_text(canvas, hint, (HALF, HEIGHT - 48), 20, (170,) * 3, center=True)
+    return canvas
 
 
 def render(
@@ -39,8 +64,13 @@ def render(
     catalog: dict[str, MemeSpec],
     landmarks: LandmarkResult | None = None,
     banner: str = "",
+    draft_name: str = "",
+    leaderboard: list[tuple[str, int]] | None = None,
 ) -> np.ndarray:
     canvas = np.full((HEIGHT, WIDTH, 3), BG, dtype=np.uint8)
+    if state.phase == Phase.SUMMARY:
+        _summary(canvas, state, draft_name, leaderboard or [])
+        return canvas
     _header(canvas, state)
     _camera(canvas, frame, state, landmarks)
     _right_panel(canvas, state, catalog)
@@ -57,7 +87,9 @@ def render(
 def _header(canvas: np.ndarray, state: GameState) -> None:
     put_text(canvas, "MEME VISION", (24, 18), 40, ACCENT, bold=True)
     mode = f"Modo {MODE_NAMES[state.mode]}"
-    if state.mode != Mode.LIVE:
+    if state.mode == Mode.CHALLENGE:
+        mode += f" · {state.round}/{state.total_rounds} · {state.score} pts"
+    elif state.mode != Mode.LIVE:
         mode += f" · Ronda {state.round}"
     put_text(canvas, mode, (WIDTH - 24 - _width(mode, 26), 26), 26)
 
@@ -129,6 +161,35 @@ def _footer(canvas: np.ndarray, state: GameState, catalog: dict[str, MemeSpec]) 
     put_text(canvas, CONTROLS, (WIDTH - 12 - _width(CONTROLS, 16), HEIGHT - 26), 16, (170,) * 3)
 
 
+def _summary(
+    canvas: np.ndarray,
+    state: GameState,
+    draft_name: str,
+    leaderboard: list[tuple[str, int]],
+) -> None:
+    put_text(canvas, "MEME VISION", (24, 18), 40, ACCENT, bold=True)
+    _big(canvas, f"Tu puntaje: {state.score}", 110, WHITE)
+    _small(canvas, "¿Quieres guardar tu nombre y puntaje?", 170, (210, 210, 210), 28)
+    shown = draft_name if draft_name else "escribe tu nombre y pulsa Enter"
+    color = WHITE if draft_name else (150, 150, 150)
+    cv2.rectangle(canvas, (340, 200), (940, 260), PANEL_BG, -1)
+    cv2.rectangle(canvas, (340, 200), (940, 260), ACCENT, 2)
+    put_text(canvas, shown, (640, 230), 32, color, bold=True, center=True)
+
+    put_text(canvas, "Leaderboard", (640, 300), 32, ACCENT, bold=True, center=True)
+    if not leaderboard:
+        _small(canvas, "Todavía no hay puntajes guardados", 360)
+    for i, (name, score) in enumerate(leaderboard[:8]):
+        line = f"{i + 1}.  {name}    {score}"
+        put_text(canvas, line, (640, 350 + i * 32), 26, WHITE, center=True)
+
+    x0, y0, w, h = RETRY_BUTTON
+    cv2.rectangle(canvas, (x0, y0), (x0 + w, y0 + h), ACCENT, -1)
+    put_text(
+        canvas, "Volver a intentar", (x0 + w // 2, y0 + h // 2), 28, BG, bold=True, center=True
+    )
+
+
 def _result(canvas: np.ndarray, state: GameState, catalog: dict[str, MemeSpec], y: int) -> None:
     result = state.result
     if result.meme == UNSURE:
@@ -138,7 +199,15 @@ def _result(canvas: np.ndarray, state: GameState, catalog: dict[str, MemeSpec], 
     else:
         name = _name(result.meme, catalog)
         _big(canvas, f"¡Estás imitando a {name}!  {result.confidence:.0%}", y, WHITE)
-    if state.success is True:
+    if state.mode == Mode.CHALLENGE:
+        _small(
+            canvas,
+            f"+{state.round_points} pts por este meme · Total {state.score}",
+            y + 48,
+            ACCENT,
+            28,
+        )
+    elif state.success is True:
         _small(canvas, "¡Reto superado!", y + 56, GREEN, size=34)
     elif state.success is False:
         _small(canvas, f"¡Casi! Tu reto era {_name(state.target, catalog)}", y + 56, ACCENT, 30)

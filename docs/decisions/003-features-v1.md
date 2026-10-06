@@ -15,7 +15,7 @@ Vector v1.0 de 90 features (detalle en la spec 003):
 - **Distancia punta del índice↔boca:** el rasgo principal de `michi-silencio`.
 - **Profundidad `z` de las muñecas:** ayuda con "brazo hacia la cámara" (`michi-burla`), aunque es ruidosa.
 - **21 blendshapes** en lugar de 15: se agregan `mouthFunnel`, `mouthPress*`, `eyeSquint*` y
-  `browOuterUp*` para poder sumar memes después (`michi-tos`, `michi-ceja`) sin cambiar la versión.
+  `browOuterUp*` para poder sumar memes después (`michi-tos`) sin cambiar la versión.
 - Ángulos en **radianes**, para que la tolerancia de 1e-5 de FEAT-02 se cumpla con float32.
 
 ## Consecuencias

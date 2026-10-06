@@ -7,6 +7,7 @@
 
 ## Propósito
 La app de la casa abierta: divertida, rápida y clara para visitantes de colegio. Sin pantallas técnicas.
+El nombre del juego en la pantalla de inicio es **Live WebCat**.
 
 ## Modos
 - **Reto** (`challenge`, por defecto): el sistema elige un meme al azar y la persona lo imita.
@@ -23,16 +24,26 @@ BUSCANDO --persona visible--> DETECTADA --1 s--> CUENTA (3, 2, 1) --> ANALIZANDO
 ```
 - Si la persona desaparece más de 1.5 s en DETECTADA, CUENTA o ANALIZANDO → BUSCANDO.
 - En RESULTADO: el meme con su porcentaje. En modo reto, además, si superó el reto o no.
-- Al terminar RESULTADO empieza una ronda nueva con otro meme objetivo (distinto al anterior).
+- Al terminar RESULTADO empieza una ronda nueva con otro meme objetivo (distinto al anterior),
+  hasta completar **10 rondas**. Luego pasa a RESUMEN: puntaje total, leaderboard y
+  el botón «Volver a intentar».
+- Al abrir la app, y al pulsar «Volver a intentar», se muestra una pantalla de inicio simple
+  con el título «Live WebCat» y el botón «Jugar». La cámara y el detector de pose no se abren
+  mientras esa pantalla está visible. «Jugar» (clic, Enter o espacio) empieza una partida nueva.
+- En modo reto, cada ronda suma el parecido con el meme de la pantalla: la probabilidad
+  de ese meme, de 0 a 100 puntos. Se acumula durante las 10 rondas.
+- En RESUMEN se puede escribir un nombre y guardarlo con Enter. El nombre es opcional
+  y queda solo en `data/leaderboard.json` (no va a git).
 
 ## Contrato
 ```python
-class Phase(StrEnum): SEARCHING, DETECTED, COUNTDOWN, ANALYZING, RESULT, LIVE
+class Phase(StrEnum): SEARCHING, DETECTED, COUNTDOWN, ANALYZING, RESULT, LIVE, SUMMARY
 class Mode(StrEnum): CHALLENGE, FREE, LIVE
 @dataclass(frozen=True)
 class GameState:
     mode: Mode; phase: Phase; round: int; target: str | None
     remaining_s: float; live: Prediction | None; result: Prediction | None; success: bool | None
+    score: int = 0; round_points: int = 0
 class Game:
     def __init__(self, meme_ids: Sequence[str], mode=Mode.CHALLENGE, rng=random.Random(),
                  clock=time.monotonic, timings: Timings = Timings()): ...
@@ -40,8 +51,10 @@ class Game:
     def set_mode(self, mode: Mode) -> GameState
     def next_round(self) -> GameState
 def render(frame, state: GameState, catalog: dict[str, MemeSpec], landmarks, banner="") -> np.ndarray
+def render_start() -> np.ndarray
+def button_at(x: int, y: int) -> str | None   # "start" o "retry"
 ```
-`render` devuelve un lienzo de 1280x720 BGR.
+`render` y `render_start` devuelven un lienzo de 1280x720 BGR.
 
 ## Criterios de aceptación
 - `UX-01` Sin persona, el juego queda en BUSCANDO.
@@ -54,6 +67,11 @@ def render(frame, state: GameState, catalog: dict[str, MemeSpec], landmarks, ban
 - `UX-08` Cambiar de modo reinicia la ronda. En modo en vivo la fase es siempre `LIVE` y `live` lleva la predicción actual.
 - `UX-09` El objetivo del reto nunca es `neutral`.
 - `UX-10` `render` devuelve un lienzo 1280x720 en todas las fases y modos, con o sin landmarks y resultado.
+- `UX-11` En modo reto, los puntos de la ronda son la probabilidad del meme objetivo × 100, y se suman al total.
+- `UX-12` Tras 10 rondas (configurable en tests), RESULTADO pasa a RESUMEN con el puntaje acumulado y no abre la ronda 11.
+- `UX-13` `play_again` vuelve a la ronda 1 con puntaje 0.
+- `UX-14` Guardar un nombre y un puntaje los agrega al leaderboard, ordenado de mayor a menor. Un nombre vacío no se guarda.
+- `UX-15` `render_start` devuelve un lienzo 1280x720. El clic en «Jugar» lo identifica `button_at` como `start`; fuera del botón no hay acción.
 
 ## Controles (teclado)
 `q`/`Esc` salir · `m` cambiar de modo · `espacio` nueva ronda · `f` pantalla completa.
@@ -63,10 +81,11 @@ def render(frame, state: GameState, catalog: dict[str, MemeSpec], landmarks, ban
 - Resultado `neutral` → "No estás imitando ningún meme".
 
 ## Fuera de alcance
-Sonidos, animaciones complejas y ranking de puntajes (después del MVP).
+Sonidos y animaciones complejas.
 
 ## Tareas
 - [x] `game.py` + tests UX-01..09 con reloj falso
 - [x] `ui.py` + test UX-10
+- [x] Pantalla de inicio Live WebCat (UX-15); «Volver a intentar» vuelve a ella y suelta la cámara
 - [x] `scripts/demo.py`
 - [ ] Probar con visitantes reales y ajustar tiempos y textos

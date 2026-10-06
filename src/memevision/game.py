@@ -26,6 +26,22 @@ class Phase(StrEnum):
     ANALYZING = "analyzing"
     RESULT = "result"
     LIVE = "live"
+    SUMMARY = "summary"
+
+
+ROUNDS_PER_GAME = 10
+
+
+def points_for(prediction: Prediction, target: str | None) -> int:
+    """0–100 según la probabilidad del meme que está en pantalla."""
+    if not target:
+        return 0
+    raw = prediction.probabilities.get(target)
+    if raw is None and prediction.meme == target:
+        raw = prediction.confidence
+    if raw is None:
+        return 0
+    return int(round(min(1.0, max(0.0, float(raw))) * 100))
 
 
 @dataclass(frozen=True)
@@ -48,6 +64,9 @@ class GameState:
     result: Prediction | None = None
     success: bool | None = None
     person_visible: bool = False
+    score: int = 0
+    round_points: int = 0
+    total_rounds: int = ROUNDS_PER_GAME
 
 
 class Game:
@@ -58,17 +77,23 @@ class Game:
         rng: random.Random | None = None,
         clock: Callable[[], float] = time.monotonic,
         timings: Timings | None = None,
+        rounds: int = ROUNDS_PER_GAME,
     ):
         self._targets = [m for m in meme_ids if m != NEUTRAL]
         self._rng = rng or random.Random()
         self._clock = clock
         self.timings = timings or Timings()
         self.mode = mode
+        self.rounds = rounds
         self._round = 0
+        self._score = 0
+        self._round_points = 0
         self._target: str | None = None
         self._live: Prediction | None = None
+        self._deck: list[str] = []
         self._last_seen = clock()
         self._visible = False
+        self._deck = self._make_deck()
         self.next_round()
 
     # --- API pública -------------------------------------------------------------------------
@@ -88,12 +113,24 @@ class Game:
     def set_mode(self, mode: Mode) -> GameState:
         self.mode = mode
         self._round = 0
+        self._score = 0
+        self._round_points = 0
+        self._deck = self._make_deck()
+        return self.next_round()
+
+    def play_again(self) -> GameState:
+        """Nueva partida de 10 memes, con el puntaje en cero."""
+        self._round = 0
+        self._score = 0
+        self._round_points = 0
+        self._deck = self._make_deck()
         return self.next_round()
 
     def next_round(self) -> GameState:
         self._round += 1
         self._result: Prediction | None = None
         self._last_prediction: Prediction | None = None
+        self._round_points = 0
         self._target = self._pick_target() if self.mode == Mode.CHALLENGE else None
         self._enter(Phase.LIVE if self.mode == Mode.LIVE else Phase.SEARCHING)
         return self.state
@@ -121,6 +158,9 @@ class Game:
             result=self._result,
             success=success,
             person_visible=self._visible,
+            score=self._score,
+            round_points=self._round_points,
+            total_rounds=self.rounds,
         )
 
     # --- transiciones ------------------------------------------------------------------------
@@ -149,18 +189,46 @@ class Game:
             elif elapsed >= t.analyze_max_s - _EPS:
                 self._finish(self._last_prediction or Prediction(UNSURE, 0.0))
         elif phase == Phase.RESULT and elapsed >= t.result_s - _EPS:
-            self.next_round()
+            if self.mode == Mode.CHALLENGE and self._round >= self.rounds:
+                self._enter(Phase.SUMMARY)
+            else:
+                self.next_round()
 
     def _finish(self, result: Prediction) -> None:
         self._result = result
+        if self.mode == Mode.CHALLENGE:
+            self._round_points = points_for(result, self._target)
+            self._score += self._round_points
         self._enter(Phase.RESULT)
 
     def _enter(self, phase: Phase) -> None:
         self._phase = phase
         self._phase_start = self._clock()
 
+    def _make_deck(self) -> list[str]:
+        """10 memes de la partida. Si hay 10 o más, sin repetir; si hay menos, se rellenan."""
+        pool = list(self._targets)
+        if not pool:
+            return []
+        if len(pool) >= self.rounds:
+            return self._rng.sample(pool, self.rounds)
+        deck: list[str] = []
+        while len(deck) < self.rounds:
+            options = [m for m in pool if not deck or m != deck[-1]] or pool
+            self._rng.shuffle(options)
+            for meme in options:
+                if deck and meme == deck[-1] and len(pool) > 1:
+                    continue
+                deck.append(meme)
+                if len(deck) == self.rounds:
+                    break
+        return deck
+
     def _pick_target(self) -> str | None:
         if not self._targets:
             return None
+        index = self._round - 1
+        if 0 <= index < len(self._deck):
+            return self._deck[index]
         options = [m for m in self._targets if m != self._target] or self._targets
         return self._rng.choice(options)

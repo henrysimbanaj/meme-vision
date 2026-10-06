@@ -20,9 +20,9 @@ def p(meme: str, conf: float = 0.9) -> Prediction:
     return Prediction(meme, conf, {meme: conf})
 
 
-def make(mode=Mode.CHALLENGE, memes=MEMES):
+def make(mode=Mode.CHALLENGE, memes=MEMES, rounds=10):
     clock = Clock()
-    return Game(memes, mode=mode, rng=random.Random(1), clock=clock), clock
+    return Game(memes, mode=mode, rng=random.Random(1), clock=clock, rounds=rounds), clock
 
 
 def advance(game, clock, seconds, visible=True, pred=None, stable=False, step=0.1):
@@ -131,6 +131,53 @@ def test_UX_09_objetivo_nunca_es_neutral():
     game, _ = make(memes=[NEUTRAL, "michi-fuerza"])
     for _ in range(10):
         assert game.next_round().target == "michi-fuerza"
+
+
+def test_UX_11_puntos_segun_el_parecido_al_meme_de_la_pantalla():
+    game, clock = make()
+    target = to_analyzing(game, clock).target
+    state = advance(
+        game,
+        clock,
+        0.1,
+        pred=Prediction("otro", 0.6, {target: 0.87, "otro": 0.13}),
+        stable=True,
+    )
+    assert state.round_points == 87 and state.score == 87
+    advance(game, clock, 5.1, visible=False)
+    target2 = game.state.target
+    to_analyzing(game, clock)
+    state = advance(
+        game,
+        clock,
+        0.1,
+        pred=Prediction("otro", 0.6, {target2: 0.4, "otro": 0.6}),
+        stable=True,
+    )
+    assert state.round_points == 40 and state.score == 127
+
+
+def test_UX_12_al_terminar_las_rondas_pasa_al_resumen():
+    game, clock = make(rounds=2)
+    for _ in range(2):
+        target = to_analyzing(game, clock).target
+        advance(game, clock, 0.1, pred=p(target, 0.5), stable=True)
+        assert game.state.phase == Phase.RESULT
+        advance(game, clock, 5.1, visible=False)
+    assert game.state.phase == Phase.SUMMARY
+    assert game.state.score == 100
+    assert game.state.round == 2
+
+
+def test_UX_13_volver_a_intentar_reinicia_puntaje_y_ronda():
+    game, clock = make(rounds=1)
+    target = to_analyzing(game, clock).target
+    advance(game, clock, 0.1, pred=p(target), stable=True)
+    advance(game, clock, 5.1, visible=False)
+    assert game.state.phase == Phase.SUMMARY
+    state = game.play_again()
+    assert state.phase == Phase.SEARCHING
+    assert state.round == 1 and state.score == 0 and state.round_points == 0
 
 
 def test_estado_informa_si_hay_persona_visible():

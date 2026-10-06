@@ -46,4 +46,4 @@ Editar memes desde la UI.
 ## Tareas
 - [x] `catalog.py` + tests CAT-01..07
 - [x] `scripts/add_meme.py`
-- [x] Pasar los 5 memes iniciales a `memes/catalog/`
+- [x] Pasar los 4 memes iniciales a `memes/catalog/`

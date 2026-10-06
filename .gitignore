@@ -8,6 +8,7 @@ __pycache__/
 .idea/
 .vscode/
 data/raw/
+data/leaderboard.json
 *.mp4
 *.mov
 models/*.task

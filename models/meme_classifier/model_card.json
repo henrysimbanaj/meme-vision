@@ -22,5 +22,5 @@
   "samples_test": 1799,
   "accuracy_unseen_person": 0.6781545302946081,
   "n_estimators": 300,
-  "created": "2026-10-05T16:43:12"
+  "created": "2026-10-05T20:45:52"
 }
