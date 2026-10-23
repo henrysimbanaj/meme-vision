@@ -32,6 +32,9 @@ BUSCANDO --persona visible--> DETECTADA --1 s--> CUENTA (3, 2, 1) --> ANALIZANDO
 - Al abrir la app, y al pulsar «Volver a intentar», se muestra una pantalla de inicio simple
   con el título «Live WebCat» y el botón «Jugar». La cámara y el detector de pose no se abren
   mientras esa pantalla está visible. «Jugar» (clic, Enter o espacio) empieza una partida nueva.
+- Durante la partida suena `assets/audio/musictheme.mp3` en bucle. Al terminar el resultado de la
+  ronda 10, la música de fondo se detiene y suena una vez `assets/audio/fnafcelebracion.mp3`.
+  Al regresar al inicio para volver a jugar, vuelve a sonar la música de fondo.
 - En modo reto, cada ronda suma el parecido con el meme de la pantalla: la probabilidad
   de ese meme, de 0 a 100 puntos. Se acumula durante las 10 rondas.
 - En RESUMEN se puede escribir un nombre y guardarlo con Enter. El nombre es opcional
@@ -75,6 +78,8 @@ def button_at(x: int, y: int) -> str | None   # "start" o "retry"
 - `UX-14` Guardar un nombre y un puntaje los agrega al leaderboard, ordenado de mayor a menor. Un nombre vacío no se guarda.
 - `UX-15` `render_start` devuelve un lienzo 1280x720. El clic en «Jugar» lo identifica `button_at` como `start`; fuera del botón no hay acción.
 - `UX-16` El mensaje del resultado depende de los puntos: 80+ «Excelente», 55–79 «Buen Trabajo», 30–54 «Casi», menos de 30 «Suerte en la próxima!».
+- `UX-17` La música de fondo suena durante el juego y se detiene al salir de la partida.
+- `UX-18` Al entrar a RESUMEN al terminar las 10 rondas, se reproduce una vez el tema de celebración.
 
 ## Controles (teclado)
 `q`/`Esc` salir · `m` cambiar de modo · `espacio` nueva ronda · `f` pantalla completa.
@@ -84,7 +89,7 @@ def button_at(x: int, y: int) -> str | None   # "start" o "retry"
 - Resultado `neutral` → "No estás imitando ningún meme".
 
 ## Fuera de alcance
-Sonidos y animaciones complejas.
+Animaciones complejas.
 
 ## Tareas
 - [x] `game.py` + tests UX-01..09 con reloj falso

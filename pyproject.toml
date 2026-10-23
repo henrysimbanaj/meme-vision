@@ -17,6 +17,8 @@ dependencies = [
     "pyyaml>=6.0",
     "pillow>=10",      # texto con tildes en la UI (OpenCV no las dibuja)
     "matplotlib>=3.8", # trae la fuente DejaVu Sans y dibuja la matriz de confusión
+    "miniaudio>=1.12", # decodifica MP3 multiplataforma
+    "sounddevice>=0.5", # salida de audio multiplataforma
 ]
 
 [project.optional-dependencies]

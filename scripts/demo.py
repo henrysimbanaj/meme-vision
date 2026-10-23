@@ -18,6 +18,11 @@ import argparse
 
 import cv2
 
+from memevision.audio import (
+    BACKGROUND_MUSIC,
+    CELEBRATION_MUSIC,
+    AudioPlayer,
+)
 from memevision.camera import Camera
 from memevision.catalog import load_catalog
 from memevision.classifier import MemeClassifier, ModelError
@@ -55,17 +60,23 @@ def main() -> None:
     cv2.resizeWindow(WINDOW, WIDTH, HEIGHT)
     _set_fullscreen(_fullscreen)
 
-    while view["name"] != "quit":
-        if view["name"] == "menu":
-            _menu_loop(view)
-            continue
-        _play_loop(view, catalog, classifier, banner, mode, args.camera)
+    audio = AudioPlayer()
+    try:
+        while view["name"] != "quit":
+            if view["name"] == "menu":
+                _menu_loop(view, audio)
+                continue
+            _play_loop(view, catalog, classifier, banner, mode, args.camera, audio)
+    finally:
+        audio.close()
     cv2.destroyAllWindows()
 
 
-def _menu_loop(view: dict) -> None:
+def _menu_loop(view: dict, audio: AudioPlayer) -> None:
     """Pantalla de inicio. No abre la cámara ni el detector."""
     cv2.setMouseCallback(WINDOW, lambda e, x, y, _f, _p: _on_menu_click(e, x, y, view))
+    if not audio.is_playing:
+        audio.play(BACKGROUND_MUSIC, loop=True)
     while view["name"] == "menu":
         cv2.imshow(WINDOW, render_start())
         key = cv2.waitKey(1) & 0xFF
@@ -77,12 +88,16 @@ def _menu_loop(view: dict) -> None:
             _toggle_fullscreen()
 
 
-def _play_loop(view, catalog, classifier, banner, mode, camera_index: int) -> None:
+def _play_loop(
+    view, catalog, classifier, banner, mode, camera_index: int, audio: AudioPlayer
+) -> None:
     game = Game(list(catalog), mode=mode)
     smoother = Smoother()
     session = {"name": "", "saved": False, "board": load_board()}
     cv2.setMouseCallback(WINDOW, lambda e, x, y, _f, _p: _on_summary_click(e, x, y, game, view))
     with Camera(camera_index) as camera, LandmarkDetector() as detector:
+        if not audio.is_playing:
+            audio.play(BACKGROUND_MUSIC, loop=True)
         while view["name"] == "play":
             frame = camera.get_frame()
             landmarks = detector.extract(frame) if frame is not None else None
@@ -98,6 +113,8 @@ def _play_loop(view, catalog, classifier, banner, mode, camera_index: int) -> No
 
             before = game.state.phase
             state = game.update(visible, prediction, smoother.stable)
+            if state.phase == Phase.SUMMARY and before != Phase.SUMMARY:
+                audio.play(CELEBRATION_MUSIC)
             if state.phase == Phase.ANALYZING and before != Phase.ANALYZING:
                 smoother.reset()  # el resultado mide la pose después de la cuenta, no antes
 
@@ -116,6 +133,7 @@ def _play_loop(view, catalog, classifier, banner, mode, camera_index: int) -> No
             key = cv2.waitKey(1) & 0xFF
             if key in (ord("q"), 27) or cv2.getWindowProperty(WINDOW, cv2.WND_PROP_VISIBLE) < 1:
                 view["name"] = "quit"
+                break
             elif state.phase == Phase.SUMMARY:
                 _type_name(key, state.score, session)
             elif key == ord("m") and classifier is not None:
@@ -126,6 +144,12 @@ def _play_loop(view, catalog, classifier, banner, mode, camera_index: int) -> No
                 smoother.reset()
             elif key == ord("f"):
                 _toggle_fullscreen()
+            if state.phase == Phase.SUMMARY and audio.finished:
+                audio.stop()
+                view["name"] = "menu"
+                break
+    if view["name"] != "menu":
+        audio.stop()
 
 
 def _on_menu_click(event: int, x: int, y: int, view: dict) -> None:
