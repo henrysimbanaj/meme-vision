@@ -64,7 +64,7 @@ def main() -> None:
     try:
         while view["name"] != "quit":
             if view["name"] == "menu":
-                _menu_loop(view, audio)
+                _menu_loop(view, audio, catalog)
                 continue
             _play_loop(view, catalog, classifier, banner, mode, args.camera, audio)
     finally:
@@ -72,13 +72,13 @@ def main() -> None:
     cv2.destroyAllWindows()
 
 
-def _menu_loop(view: dict, audio: AudioPlayer) -> None:
+def _menu_loop(view: dict, audio: AudioPlayer, catalog) -> None:
     """Pantalla de inicio. No abre la cámara ni el detector."""
     cv2.setMouseCallback(WINDOW, lambda e, x, y, _f, _p: _on_menu_click(e, x, y, view))
     if not audio.is_playing:
         audio.play(BACKGROUND_MUSIC, loop=True)
     while view["name"] == "menu":
-        cv2.imshow(WINDOW, render_start())
+        cv2.imshow(WINDOW, render_start(catalog))
         key = cv2.waitKey(1) & 0xFF
         if key in (ord("q"), 27) or cv2.getWindowProperty(WINDOW, cv2.WND_PROP_VISIBLE) < 1:
             view["name"] = "quit"
@@ -144,10 +144,9 @@ def _play_loop(
                 smoother.reset()
             elif key == ord("f"):
                 _toggle_fullscreen()
+            # El resumen queda disponible para escribir el nombre aunque termine la celebración.
             if state.phase == Phase.SUMMARY and audio.finished:
                 audio.stop()
-                view["name"] = "menu"
-                break
     if view["name"] != "menu":
         audio.stop()
 

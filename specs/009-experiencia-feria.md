@@ -24,21 +24,23 @@ BUSCANDO --persona visible--> DETECTADA --1 s--> CUENTA (3, 2, 1) --> ANALIZANDO
 ```
 - Si la persona desaparece más de 1.5 s en DETECTADA, CUENTA o ANALIZANDO → BUSCANDO.
 - En RESULTADO, modo reto: un mensaje según los puntos de la ronda (0–100).
-  80 o más: «Excelente». 55–79: «Buen Trabajo». 30–54: «Casi». Menos de 30: «Suerte en la próxima!».
-  Debajo, los puntos de la ronda y el total.
+  80 o más: «Excelente». 55–79: «Buen Trabajo». 30–54: «Casi». Menos de 30: «¡Sigue intentando!».
+  Debajo, los puntos de este michi y el total en bloques separados y legibles.
 - Al terminar RESULTADO empieza una ronda nueva con otro meme objetivo (distinto al anterior),
   hasta completar **10 rondas**. Luego pasa a RESUMEN: puntaje total, leaderboard y
   el botón «Volver a intentar».
-- Al abrir la app, y al pulsar «Volver a intentar», se muestra una pantalla de inicio simple
-  con el título «Live WebCat» y el botón «Jugar». La cámara y el detector de pose no se abren
-  mientras esa pantalla está visible. «Jugar» (clic, Enter o espacio) empieza una partida nueva.
+- Al abrir la app, y al pulsar «Volver a intentar», se muestra un menú arcade animado con el logo
+  de Live WebCat, un botón «Jugar» redondeado y seis memes de gato del catálogo. La cámara y el
+  detector de pose no se abren mientras el menú está visible. «Jugar» (clic, Enter o espacio)
+  empieza una partida nueva.
 - Durante la partida suena `assets/audio/musictheme.mp3` en bucle. Al terminar el resultado de la
   ronda 10, la música de fondo se detiene y suena una vez `assets/audio/fnafcelebracion.mp3`.
   Al regresar al inicio para volver a jugar, vuelve a sonar la música de fondo.
 - En modo reto, cada ronda suma el parecido con el meme de la pantalla: la probabilidad
   de ese meme, de 0 a 100 puntos. Se acumula durante las 10 rondas.
 - En RESUMEN se puede escribir un nombre y guardarlo con Enter. El nombre es opcional
-  y queda solo en `data/leaderboard.json` (no va a git).
+  y queda solo en `data/leaderboard.json` (no va a git). El resumen permanece visible hasta que
+  el participante elija volver al menú o salir; la duración del audio no limita el tiempo disponible.
 
 ## Contrato
 ```python
@@ -55,8 +57,8 @@ class Game:
     def update(self, person_visible: bool, prediction: Prediction | None, stable: bool) -> GameState
     def set_mode(self, mode: Mode) -> GameState
     def next_round(self) -> GameState
-def render(frame, state: GameState, catalog: dict[str, MemeSpec], landmarks, banner="") -> np.ndarray
-def render_start() -> np.ndarray
+def render(frame, state: GameState, catalog: dict[str, MemeSpec], landmarks, banner="", time_s=None) -> np.ndarray
+def render_start(catalog=None, time_s=None) -> np.ndarray
 def button_at(x: int, y: int) -> str | None   # "start" o "retry"
 ```
 `render` y `render_start` devuelven un lienzo de 1280x720 BGR.
@@ -77,19 +79,37 @@ def button_at(x: int, y: int) -> str | None   # "start" o "retry"
 - `UX-13` `play_again` vuelve a la ronda 1 con puntaje 0.
 - `UX-14` Guardar un nombre y un puntaje los agrega al leaderboard, ordenado de mayor a menor. Un nombre vacío no se guarda.
 - `UX-15` `render_start` devuelve un lienzo 1280x720. El clic en «Jugar» lo identifica `button_at` como `start`; fuera del botón no hay acción.
-- `UX-16` El mensaje del resultado depende de los puntos: 80+ «Excelente», 55–79 «Buen Trabajo», 30–54 «Casi», menos de 30 «Suerte en la próxima!».
+- `UX-16` El mensaje del resultado depende de los puntos: 80+ «Excelente», 55–79 «Buen Trabajo», 30–54 «Casi», menos de 30 «¡Sigue intentando!».
 - `UX-17` La música de fondo suena durante el juego y se detiene al salir de la partida.
 - `UX-18` Al entrar a RESUMEN al terminar las 10 rondas, se reproduce una vez el tema de celebración.
+- `UX-23` RESUMEN permanece visible y acepta el nombre hasta que el participante elija «Volver a
+  intentar» o salir. Que termine el tema de celebración no abandona ni cambia la pantalla.
+- `UX-24` El fondo de las pantallas de partida y resumen tiene una animación divertida de ondas y
+  burbujas en una paleta oceánica azul petróleo, azul bruma y coral suave, diferenciada de los
+  morados, amarillos y cianes ya usados en el juego.
+- `UX-19` El menú inicial muestra el logo de Live WebCat en lugar del título de texto, seis tarjetas
+  con memes del catálogo y un botón Jugar redondeado; el personaje gato y el fondo tienen animación
+  tipo videojuego.
+- `UX-20` Durante el análisis en modo reto, la barra del meme objetivo permanece visible y su color
+  cambia de rojo a amarillo y a verde según su probabilidad, con transición continua y verde al 100%;
+  no muestra la etiqueta «OBJETIVO» y presenta el porcentaje exacto, grande y destacado, en el mismo
+  color de la barra. La interfaz no muestra la leyenda de atajos de teclado en el pie.
+- `UX-21` Antes de la cuenta regresiva aparece «¿Listo?» y durante ella «¡Imita al gato!» con
+  animación estilo videojuego y texto en cian o menta, sin morado ni amarillo.
+- `UX-22` Durante ANALIZANDO no aparecen rótulos de estado sobre la cámara ni en el pie; la
+  cámara muestra una señal animada visual. En resultados de reto, el mensaje es destacado y
+  alentador, y «PUNTOS DE ESTE MICHI» y «PUNTAJE TOTAL» se leen como dos tarjetas separadas.
 
 ## Controles (teclado)
 `q`/`Esc` salir · `m` cambiar de modo · `espacio` nueva ronda · `f` pantalla completa.
+Los atajos siguen disponibles, pero no aparecen como leyenda en la interfaz.
 
 ## Casos borde
 - Sin modelo entrenado → la demo arranca en modo en vivo, con un aviso para entrenar.
 - Resultado `neutral` → "No estás imitando ningún meme".
 
 ## Fuera de alcance
-Animaciones complejas.
+Animaciones complejas durante las rondas.
 
 ## Tareas
 - [x] `game.py` + tests UX-01..09 con reloj falso
