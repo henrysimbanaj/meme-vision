@@ -84,9 +84,11 @@ def button_at(x: int, y: int) -> str | None   # "start" o "retry"
 - `UX-18` Al entrar a RESUMEN al terminar las 10 rondas, se reproduce una vez el tema de celebración.
 - `UX-23` RESUMEN permanece visible y acepta el nombre hasta que el participante elija «Volver a
   intentar» o salir. Que termine el tema de celebración no abandona ni cambia la pantalla.
-- `UX-24` El fondo de las pantallas de partida y resumen tiene una animación divertida de ondas y
-  burbujas en una paleta oceánica azul petróleo, azul bruma y coral suave, diferenciada de los
-  morados, amarillos y cianes ya usados en el juego.
+- `UX-24` El fondo de las pantallas de partida y resumen tiene burbujas animadas en una paleta
+  oceánica azul petróleo, azul bruma y coral suave; no dibuja líneas horizontales. El mismo gato
+  pixelado del menú aparece como mascota animada en la partida y el resumen.
+- `UX-25` Al activar pantalla completa, el lienzo se adapta al área visible real manteniendo su
+  proporción y centrado; los clics del menú y resumen siguen correspondiendo a sus coordenadas.
 - `UX-19` El menú inicial muestra el logo de Live WebCat en lugar del título de texto, seis tarjetas
   con memes del catálogo y un botón Jugar redondeado; el personaje gato y el fondo tienen animación
   tipo videojuego.

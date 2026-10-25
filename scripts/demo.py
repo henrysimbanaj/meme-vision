@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 
 import cv2
+import numpy as np
 
 from memevision.audio import (
     BACKGROUND_MUSIC,
@@ -56,8 +57,11 @@ def main() -> None:
     global _fullscreen
     _fullscreen = args.fullscreen
     view = {"name": "menu"}
-    cv2.namedWindow(WINDOW, cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
+    # La aplicación ajusta el 16:9 al área real, así que HighGUI no debe limitar el viewport.
+    cv2.namedWindow(WINDOW, cv2.WINDOW_NORMAL | cv2.WINDOW_FREERATIO)
     cv2.resizeWindow(WINDOW, WIDTH, HEIGHT)
+    cv2.imshow(WINDOW, render_start(catalog))
+    cv2.waitKey(1)
     _set_fullscreen(_fullscreen)
 
     audio = AudioPlayer()
@@ -78,7 +82,7 @@ def _menu_loop(view: dict, audio: AudioPlayer, catalog) -> None:
     if not audio.is_playing:
         audio.play(BACKGROUND_MUSIC, loop=True)
     while view["name"] == "menu":
-        cv2.imshow(WINDOW, render_start(catalog))
+        _show_frame(render_start(catalog))
         key = cv2.waitKey(1) & 0xFF
         if key in (ord("q"), 27) or cv2.getWindowProperty(WINDOW, cv2.WND_PROP_VISIBLE) < 1:
             view["name"] = "quit"
@@ -118,8 +122,7 @@ def _play_loop(
             if state.phase == Phase.ANALYZING and before != Phase.ANALYZING:
                 smoother.reset()  # el resultado mide la pose después de la cuenta, no antes
 
-            cv2.imshow(
-                WINDOW,
+            _show_frame(
                 render(
                     frame,
                     state,
@@ -128,7 +131,7 @@ def _play_loop(
                     banner,
                     draft_name=session["name"],
                     leaderboard=session["board"],
-                ),
+                )
             )
             key = cv2.waitKey(1) & 0xFF
             if key in (ord("q"), 27) or cv2.getWindowProperty(WINDOW, cv2.WND_PROP_VISIBLE) < 1:
@@ -179,7 +182,42 @@ def _to_canvas(x: int, y: int) -> tuple[int, int]:
         w, h = WIDTH, HEIGHT
     if w <= 0 or h <= 0:
         return x, y
-    return int(x * WIDTH / w), int(y * HEIGHT / h)
+    return _viewport_to_canvas(x, y, w, h)
+
+
+def _show_frame(canvas) -> None:
+    """Adapta cada lienzo al área visible de la ventana sin deformarlo."""
+    try:
+        _x, _y, width, height = cv2.getWindowImageRect(WINDOW)
+    except cv2.error:
+        width, height = WIDTH, HEIGHT
+    if width <= 0 or height <= 0:
+        width, height = WIDTH, HEIGHT
+    cv2.imshow(WINDOW, _fit_to_viewport(canvas, width, height))
+
+
+def _fit_to_viewport(canvas, width: int, height: int):
+    """Escala 16:9 al área disponible y centra el lienzo con márgenes negros."""
+    scale = min(width / WIDTH, height / HEIGHT)
+    scaled_w = max(1, int(round(WIDTH * scale)))
+    scaled_h = max(1, int(round(HEIGHT * scale)))
+    interpolation = cv2.INTER_AREA if scale < 1 else cv2.INTER_LINEAR
+    scaled = cv2.resize(canvas, (scaled_w, scaled_h), interpolation=interpolation)
+    output = np.zeros((height, width, 3), dtype=np.uint8)
+    x = (width - scaled_w) // 2
+    y = (height - scaled_h) // 2
+    output[y : y + scaled_h, x : x + scaled_w] = scaled
+    return output
+
+
+def _viewport_to_canvas(x: int, y: int, width: int, height: int) -> tuple[int, int]:
+    """Invierte el centrado y escalado aplicado al adaptar el lienzo."""
+    scale = min(width / WIDTH, height / HEIGHT)
+    scaled_w = max(1, int(round(WIDTH * scale)))
+    scaled_h = max(1, int(round(HEIGHT * scale)))
+    offset_x = (width - scaled_w) // 2
+    offset_y = (height - scaled_h) // 2
+    return int((x - offset_x) / scale), int((y - offset_y) / scale)
 
 
 def _type_name(key: int, score: int, session: dict) -> None:
@@ -200,6 +238,7 @@ def _type_name(key: int, score: int, session: dict) -> None:
 def _set_fullscreen(on: bool) -> None:
     flag = cv2.WINDOW_FULLSCREEN if on else cv2.WINDOW_NORMAL
     cv2.setWindowProperty(WINDOW, cv2.WND_PROP_FULLSCREEN, flag)
+    cv2.waitKey(50)
 
 
 if __name__ == "__main__":
